@@ -2,55 +2,45 @@ package com.janoz.rl.statgatherer.domain.entities
 
 import com.janoz.rl.statgatherer.domain.json.JsonTeam
 import com.janoz.rl.statgatherer.util.ColorUtils.Companion.toColor
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheCompanion
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntity
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.OneToMany
 import java.awt.Color
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@Entity
-class Team : PanacheEntity() {
-    @OneToMany(mappedBy = "playerMatch")
-    lateinit var playerMatches: MutableList<TeamPlayer>
+@OptIn(ExperimentalUuidApi::class)
+data class Team(
+    val uuid: Uuid = Uuid.random(),
+    val name: String,
+    val score: Int,
+    val primaryColor: Color,
+    val secondaryColor: Color,
+    val playerMatches: MutableSet<TeamPlayer> = HashSet(),
+) {
+    override fun toString(): String = "Team(name=$name, score=$score)"
 
-    @Column(name = NAME_COLUMN)
-    lateinit var name: String
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    @Column(name = SCORE_COLUMN)
-    var score: Int = 0
+        other as Team
 
-    @Column(name = PRIMARY_COLOR_COLUMN)
-    lateinit var primaryColor: Color
+        if (score != other.score) return false
+        if (uuid != other.uuid) return false
+        if (name != other.name) return false
+        if (primaryColor != other.primaryColor) return false
+        if (secondaryColor != other.secondaryColor) return false
 
-    @Column(name = SECONDARY_COLOR_COLUMN)
-    lateinit var secondaryColor: Color
-
-    companion object : PanacheCompanion<Team> {
-        const val TABLE_NAME = "TEAMS"
-        const val NAME_COLUMN = "NAME"
-        const val SCORE_COLUMN = "SCORE"
-        const val PRIMARY_COLOR_COLUMN = "PRIMARY_COLOR"
-        const val SECONDARY_COLOR_COLUMN = "SECONDARY_COLOR"
-
-        fun make(jsonTeam: JsonTeam?): Team =
-            Team()
-                .apply {
-                    if (jsonTeam == null) {
-                        this.name = "Unknown"
-                        this.score = 0
-                        this.primaryColor = Color.GRAY
-                        this.secondaryColor = Color.DARK_GRAY
-                    } else {
-                        apply(jsonTeam)
-                    }
-                }.apply { persist() }
+        return true
     }
 
-    fun apply(jsonTeam: JsonTeam) {
-        this.name = jsonTeam.name
-        this.score = jsonTeam.score
-        this.primaryColor = jsonTeam.colorPrimary.toColor()
-        this.secondaryColor = jsonTeam.colorSecondary.toColor()
+    override fun hashCode(): Int = uuid.hashCode()
+
+    companion object {
+        fun fromJson(jsonTeam: JsonTeam): Team =
+            Team(
+                name = jsonTeam.name,
+                score = jsonTeam.score,
+                primaryColor = jsonTeam.colorPrimary.toColor(),
+                secondaryColor = jsonTeam.colorSecondary.toColor(),
+            )
     }
 }

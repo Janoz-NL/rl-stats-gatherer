@@ -1,48 +1,49 @@
 package com.janoz.rl.statgatherer.domain.entities
 
 import com.janoz.rl.statgatherer.domain.json.JsonGameState
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheCompanion
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntity
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.OneToOne
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-@Entity
-class Match : PanacheEntity() {
-    @Column(name = MATCH_ID_COLUMN)
-    lateinit var uuid: Uuid
+data class Match(
+    val uuid: Uuid,
+    val homeTeam: Team,
+    val awayTeam: Team,
+    val isFinished: Boolean,
+    val firstSeen: Instant,
+) {
+    override fun toString(): String = "Match(uuid=$uuid, homeTeam=${homeTeam.name}, awayTeam=${awayTeam.name}, isFinished=$isFinished)"
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = HOME_TEAM_ID_COLUMN) // Name of the column in the parent entity, denotes this is the owner of the relation
-    lateinit var homeTeam: Team
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = AWAY_TEAM_ID_COLUMN) // Name of the column in the parent entity, denotes this is the owner of the relation
-    lateinit var awayTeam: Team
+        other as Match
 
-    companion object : PanacheCompanion<Match> {
-        const val TABLE_NAME = "MATCHES"
-        const val MATCH_ID_COLUMN = "MATCH_ID"
-        const val HOME_TEAM_ID_COLUMN = "HOME_TEAM_ID"
-        const val AWAY_TEAM_ID_COLUMN = "AWAY_TEAM_ID"
+        if (isFinished != other.isFinished) return false
+        if (uuid != other.uuid) return false
+        if (homeTeam != other.homeTeam) return false
+        if (awayTeam != other.awayTeam) return false
+        if (firstSeen != other.firstSeen) return false
 
-        fun findByMatchId(matchGuid: Uuid): Match? = find(MATCH_ID_COLUMN, matchGuid).firstResult()
+        return true
+    }
 
-        fun findOrMake(
-            matchGuid: Uuid,
+    override fun hashCode(): Int = uuid.hashCode()
+
+    companion object {
+        fun fromJson(
             jsonMatch: JsonGameState,
+            matchGuid: Uuid,
+            firstSeen: Instant,
         ): Match =
-            findByMatchId(matchGuid) ?: Match()
-                .apply {
-                    uuid = matchGuid
-                    homeTeam = Team.make(jsonMatch.getTeamByNum(0))
-                    awayTeam = Team.make(jsonMatch.getTeamByNum(1))
-                }.apply { persist() }
+            Match(
+                uuid = matchGuid,
+                homeTeam = Team.fromJson(jsonMatch.getTeamByNum(0)),
+                awayTeam = Team.fromJson(jsonMatch.getTeamByNum(1)),
+                isFinished = jsonMatch.isDone,
+                firstSeen = firstSeen,
+            )
     }
 }
