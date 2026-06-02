@@ -67,4 +67,12 @@ class TeamPlayerServiceTest {
         }
         assertThat(team.playerMatches).contains(actual)
     }
+
+    @Test
+    fun `fill team with players`() {
+        val team = createTeam(name = "TestTeam")
+        cut.fillTeamWithPLayers(team)
+        verify(teamPlayerRepository).listByTeam(team)
+        verifyNoMoreInteractions(teamPlayerRepository)
+    }
 }

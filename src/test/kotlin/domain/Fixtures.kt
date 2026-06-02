@@ -22,6 +22,10 @@ class Fixtures {
 
         val updateStateData: JsonUpdateStateData = extractData(statMsg, JsonUpdateStateData::class.java)
 
+        val matchGuid = Uuid.parse(updateStateData.matchGuid)
+
+        val aPlayerId = updateStateData.players.first().botSaveId()
+
         val invalidStatMsg: String = rePack(updateStateData.copy(game = updateStateData.game.copy(teams = emptyList())))
 
         val players =
@@ -31,7 +35,7 @@ class Fixtures {
                 "Xavier" to Player(name = "Xavier", onlineId = "steam|1|2"),
                 "Stijn" to Player(name = "Stijn", onlineId = "steam|1|3"),
                 "Twan" to Player(name = "Twan", onlineId = "steam|1|4"),
-                "Isa" to Player(name = "Isa", onlineId = "steam|1|4"),
+                "Isa" to Player(name = "Isa", onlineId = "steam|1|5"),
             )
 
         fun createTeam(name: String) =

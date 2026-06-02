@@ -4,12 +4,14 @@ import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.matchesPredicate
 import assertk.assertions.message
 import assertk.assertions.prop
+import com.janoz.rl.statgatherer.domain.Fixtures
 import com.janoz.rl.statgatherer.domain.Fixtures.Companion.createMatch
 import com.janoz.rl.statgatherer.domain.Fixtures.Companion.createTeam
 import com.janoz.rl.statgatherer.domain.entities.Player
@@ -17,6 +19,7 @@ import com.janoz.rl.statgatherer.domain.entities.Team
 import com.janoz.rl.statgatherer.domain.entities.TeamPlayer
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -25,6 +28,9 @@ import kotlin.uuid.Uuid
 @QuarkusTest
 class TeamPlayerRepositoryTest {
     @Inject
+    private lateinit var testSupport: TestSupport
+
+    @Inject
     private lateinit var playerRepo: PlayerRepository
 
     @Inject
@@ -32,6 +38,11 @@ class TeamPlayerRepositoryTest {
 
     @Inject
     private lateinit var cut: TeamPlayerRepository
+
+    @BeforeEach
+    fun setup() {
+        testSupport.clear()
+    }
 
     @Test
     fun `find non existing teamplayer`() {
@@ -115,6 +126,16 @@ class TeamPlayerRepositoryTest {
             it.contains("foreign key constraint")
             it.contains("\"team_players_player_id_fkey\"")
         }
+    }
+
+    @Test
+    fun `find players by team`() {
+        testSupport.insertMatch()
+        val match = matchRepo.findById(Fixtures.matchGuid)!!
+
+        val actual = cut.listByTeam(match.homeTeam)
+
+        assertThat(actual).hasSize(3)
     }
 
     private fun id(Id: Long) =

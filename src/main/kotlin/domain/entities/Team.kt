@@ -13,26 +13,8 @@ data class Team(
     val score: Int,
     val primaryColor: Color,
     val secondaryColor: Color,
-    val playerMatches: MutableSet<TeamPlayer> = HashSet(),
 ) {
-    override fun toString(): String = "Team(name=$name, score=$score)"
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Team
-
-        if (score != other.score) return false
-        if (uuid != other.uuid) return false
-        if (name != other.name) return false
-        if (primaryColor != other.primaryColor) return false
-        if (secondaryColor != other.secondaryColor) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int = uuid.hashCode()
+    val playerMatches: MutableSet<TeamPlayer> = HashSet()
 
     companion object {
         fun fromJson(jsonTeam: JsonTeam): Team =

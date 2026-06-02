@@ -1,0 +1,14 @@
+    {#include match/base}
+    <table>
+        <tr>
+            <th>Home Team</th>
+            <th>Away Team</th>
+            <th>Result</th>
+            <th></th>
+        </tr>
+
+        {#for match in matches}
+                {#include match/matchRow match=match /}
+        {/for}
+    </table>
+    {/include}

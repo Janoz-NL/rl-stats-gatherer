@@ -26,5 +26,5 @@ class JsonPlayer(
     @field:JsonProperty("Demos")
     val demos: Int = 0,
 ) {
-    fun botSaveId(): String = if (primaryId.startsWith("UNKNOWN")) "Bot|$name|0" else primaryId
+    fun botSaveId(): String = if (primaryId.startsWith("Unknown")) "Bot|$name|0" else primaryId
 }

@@ -1,0 +1,24 @@
+{#include match/base}
+    <table>
+        <tr>
+            <th>{match.homeTeam.name}</th>
+            <th>{match.homeTeam.score}</th><th>-</th><th>{match.awayTeam.score}</th>
+            <th>{match.awayTeam.name}</th>
+        </tr>
+        <tr>
+            <td>
+                {#for teamPlayer in match.homeTeam.playerMatches}
+                    {teamPlayer.score} -
+                    {teamPlayer.player.name} <br/>
+                {/for}
+            </td>
+            <td colspan="3"></td>
+            <td>
+                {#for teamPlayer in match.awayTeam.playerMatches}
+                    {teamPlayer.score} -
+                    {teamPlayer.player.name} <br/>
+                {/for}
+            </td>
+        </tr>
+    </table>
+{/include}

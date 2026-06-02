@@ -1,0 +1,9 @@
+{@java.lang.String active}
+{#let _active = active.or('/') }
+
+<ul id="menu">
+    <li {#if _active == '/'       }class = "selected"{/if}><a href="/">Home</a></li>
+    <li {#if _active == 'matches' }class = "selected"{/if}><a href="#" hx-get="/matches" hx-target="#content">Matches</a></li>
+    <li {#if _active == 'players' }class = "selected"{/if}><a href="#" hx-get="/players" hx-target="#content">Players</a></li>
+</ul>
+{/let}

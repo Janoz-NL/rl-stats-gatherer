@@ -1,0 +1,19 @@
+    {#include player/base}
+    <table>
+        <tr>
+            <th>ProfPic</th>
+            <th>Name</th>
+            <th>Matches</th>
+            <th>Goals</th>
+            <th>Shots</th>
+            <th>Assists</th>
+            <th>Saves</th>
+            <th>Demos</th>
+            <th></th>
+        </tr>
+
+        {#for player in players}
+                {#include player/playerRow player=player /}
+        {/for}
+    </table>
+    {/include}

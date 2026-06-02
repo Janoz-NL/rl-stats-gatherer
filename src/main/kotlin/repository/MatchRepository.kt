@@ -23,32 +23,24 @@ import kotlin.uuid.toKotlinUuid
 class MatchRepository(
     private val client: Pool,
 ) {
+    fun findAll(): List<Match> =
+        client
+            .query("SELECT $COLUMNS FROM $TABLE")
+            .execute()
+            .onItem()
+            .transform { rows -> rows.map { rowMapper(it) } }
+            .await()
+            .indefinitely()
+
     fun findById(matchGuid: Uuid): Match? =
         client
             .preparedQuery(
-                "SELECT " +
-                    "M.ID AS ID, " +
-                    "M.FIRST_SEEN AS FIRST_SEEN, " +
-                    "HT.ID AS HOME_TEAM_ID, " +
-                    "HT.NAME AS HOME_TEAM_NAME, " +
-                    "HT.PRIMARY_COLOR AS HOME_TEAM_PRIMARY_COLOR, " +
-                    "HT.SECONDARY_COLOR AS HOME_TEAM_SECONDARY_COLOR, " +
-                    "HT.SCORE AS HOME_TEAM_SCORE, " +
-                    "AT.ID AS AWAY_TEAM_ID, " +
-                    "AT.NAME AS AWAY_TEAM_NAME, " +
-                    "AT.PRIMARY_COLOR AS AWAY_TEAM_PRIMARY_COLOR, " +
-                    "AT.SECONDARY_COLOR AS AWAY_TEAM_SECONDARY_COLOR, " +
-                    "AT.SCORE AS AWAY_TEAM_SCORE " +
-                    "FROM " +
-                    "MATCHES M " +
-                    "JOIN TEAMS HT ON HT.ID = M.HOME_TEAM_ID " +
-                    "JOIN TEAMS AT ON AT.ID = M.AWAY_TEAM_ID " +
-                    "WHERE M.ID = $1",
+                "SELECT $COLUMNS FROM $TABLE WHERE M.ID = $1",
             ).execute(Tuple.of(matchGuid.toJavaUuid()))
             .onItem()
             .transform { row -> row.firstOrNull()?.let { rowMapper(it) } }
             .await()
-            .indefinitely() // TODO: IMPLEMENT ME
+            .indefinitely()
 
     fun insert(match: Match): Match {
         client
@@ -92,33 +84,46 @@ class MatchRepository(
         return match
     }
 
-    private fun rowMapper(row: Row): Match =
-        Match(
-            uuid = row.get(UUID::class.java, "id").toKotlinUuid(),
-            firstSeen = row.get(LocalDateTime::class.java, "first_seen").toInstant(ZoneOffset.ofHours(0)).toKotlinInstant(),
-            isFinished = true,
-            homeTeam =
-                Team(
-                    uuid = row.get(UUID::class.java, "home_team_id").toKotlinUuid(),
-                    name = row.get(String::class.java, "home_team_name"),
-                    primaryColor = row.get(String::class.java, "home_team_primary_color").toColor(),
-                    secondaryColor = row.get(String::class.java, "home_team_secondary_color").toColor(),
-                    score = row.getInteger("home_team_score"),
-                ),
-            awayTeam =
-                Team(
-                    uuid = row.get(UUID::class.java, "away_team_id").toKotlinUuid(),
-                    name = row.get(String::class.java, "away_team_name"),
-                    primaryColor = row.get(String::class.java, "away_team_primary_color").toColor(),
-                    secondaryColor = row.get(String::class.java, "away_team_secondary_color").toColor(),
-                    score = row.getInteger("away_team_score"),
-                ),
-        )
-
     companion object {
-        const val TABLE_NAME = "MATCHES"
-        const val MATCH_ID_COLUMN = "MATCH_ID"
-        const val HOME_TEAM_ID_COLUMN = "HOME_TEAM_ID"
-        const val AWAY_TEAM_ID_COLUMN = "AWAY_TEAM_ID"
+        val COLUMNS =
+            "M.ID AS ID, " +
+                "M.FIRST_SEEN AS FIRST_SEEN, " +
+                "HT.ID AS HOME_TEAM_ID, " +
+                "HT.NAME AS HOME_TEAM_NAME, " +
+                "HT.PRIMARY_COLOR AS HOME_TEAM_PRIMARY_COLOR, " +
+                "HT.SECONDARY_COLOR AS HOME_TEAM_SECONDARY_COLOR, " +
+                "HT.SCORE AS HOME_TEAM_SCORE, " +
+                "AT.ID AS AWAY_TEAM_ID, " +
+                "AT.NAME AS AWAY_TEAM_NAME, " +
+                "AT.PRIMARY_COLOR AS AWAY_TEAM_PRIMARY_COLOR, " +
+                "AT.SECONDARY_COLOR AS AWAY_TEAM_SECONDARY_COLOR, " +
+                "AT.SCORE AS AWAY_TEAM_SCORE "
+        val TABLE =
+            "MATCHES M " +
+                "JOIN TEAMS HT ON HT.ID = M.HOME_TEAM_ID " +
+                "JOIN TEAMS AT ON AT.ID = M.AWAY_TEAM_ID "
+
+        fun rowMapper(row: Row): Match =
+            Match(
+                uuid = row.get(UUID::class.java, "id").toKotlinUuid(),
+                firstSeen = row.get(LocalDateTime::class.java, "first_seen").toInstant(ZoneOffset.ofHours(0)).toKotlinInstant(),
+                isFinished = true,
+                homeTeam =
+                    Team(
+                        uuid = row.get(UUID::class.java, "home_team_id").toKotlinUuid(),
+                        name = row.get(String::class.java, "home_team_name"),
+                        primaryColor = row.get(String::class.java, "home_team_primary_color").toColor(),
+                        secondaryColor = row.get(String::class.java, "home_team_secondary_color").toColor(),
+                        score = row.getInteger("home_team_score"),
+                    ),
+                awayTeam =
+                    Team(
+                        uuid = row.get(UUID::class.java, "away_team_id").toKotlinUuid(),
+                        name = row.get(String::class.java, "away_team_name"),
+                        primaryColor = row.get(String::class.java, "away_team_primary_color").toColor(),
+                        secondaryColor = row.get(String::class.java, "away_team_secondary_color").toColor(),
+                        score = row.getInteger("away_team_score"),
+                    ),
+            )
     }
 }

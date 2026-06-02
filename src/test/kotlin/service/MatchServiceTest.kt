@@ -1,5 +1,8 @@
 package com.janoz.rl.statgatherer.service
 
+import assertk.assertThat
+import assertk.assertions.isNull
+import assertk.assertions.isSameInstanceAs
 import com.janoz.rl.statgatherer.domain.Fixtures
 import com.janoz.rl.statgatherer.domain.Fixtures.Companion.createMatch
 import com.janoz.rl.statgatherer.domain.entities.Match
@@ -55,7 +58,7 @@ class MatchServiceTest {
         val players: MutableSet<Player> = HashSet()
         whenever(playerService.findOrCreate(any())).thenAnswer {
             val jp = it.arguments[0] as JsonPlayer
-            log.info("Making player ${jp.name}")
+            log.info("Making PlayerResource ${jp.name}")
             Fixtures.players[jp.name]!!.also { p -> players.add(p) }
         }
         val teamPlayers: MutableSet<TeamPlayer> = HashSet()
@@ -85,6 +88,47 @@ class MatchServiceTest {
         cut.create(updateStateData, now)
 
         verify(matchRepository).findById(eq(uuid))
+        verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
+    }
+
+    @Test
+    fun `find unknown match should return null`() {
+        val uuid = Uuid.random()
+        whenever(matchRepository.findById(uuid)).thenReturn(null)
+
+        val actual = cut.find(uuid)
+
+        assertThat(actual).isNull()
+        verify(matchRepository).findById(eq(uuid))
+        verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
+    }
+
+    @Test
+    fun `find known match should return match with teams and players`() {
+        val uuid = Uuid.random()
+        val match = createMatch(uuid)
+        val homeTeam = match.homeTeam
+        val awayTeam = match.awayTeam
+        whenever(matchRepository.findById(uuid)).thenReturn(match)
+
+        val actual = cut.find(uuid)
+
+        assertThat(actual).isSameInstanceAs(match)
+        verify(matchRepository).findById(eq(uuid))
+        verify(teamPlayerService).fillTeamWithPLayers(homeTeam)
+        verify(teamPlayerService).fillTeamWithPLayers(awayTeam)
+        verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
+    }
+
+    @Test
+    fun `find all matches`() {
+        val expected = listOf(createMatch(Uuid.random()), createMatch(Uuid.random()))
+        whenever(matchRepository.findAll()).thenReturn(expected)
+
+        val actual = cut.findAll()
+
+        assertThat(actual).isSameInstanceAs(expected)
+        verify(matchRepository).findAll()
         verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
     }
 }

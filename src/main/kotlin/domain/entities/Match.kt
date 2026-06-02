@@ -13,25 +13,6 @@ data class Match(
     val isFinished: Boolean,
     val firstSeen: Instant,
 ) {
-    override fun toString(): String = "Match(uuid=$uuid, homeTeam=${homeTeam.name}, awayTeam=${awayTeam.name}, isFinished=$isFinished)"
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Match
-
-        if (isFinished != other.isFinished) return false
-        if (uuid != other.uuid) return false
-        if (homeTeam != other.homeTeam) return false
-        if (awayTeam != other.awayTeam) return false
-        if (firstSeen != other.firstSeen) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int = uuid.hashCode()
-
     companion object {
         fun fromJson(
             jsonMatch: JsonGameState,

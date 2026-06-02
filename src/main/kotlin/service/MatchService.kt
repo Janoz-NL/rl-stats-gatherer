@@ -37,4 +37,14 @@ class MatchService(
                 }
         }
     }
+
+    fun find(uuid: Uuid) =
+        repository.findById(uuid).also {
+            if (it != null) {
+                teamPlayerService.fillTeamWithPLayers(it.homeTeam)
+                teamPlayerService.fillTeamWithPLayers(it.awayTeam)
+            }
+        }
+
+    fun findAll() = repository.findAll()
 }

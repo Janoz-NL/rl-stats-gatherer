@@ -13,8 +13,6 @@ data class TeamPlayer(
     val saves: Int = 0,
     val demos: Int = 0,
 ) {
-    override fun toString(): String = "TeamPlayer(team=${team.name}, player=${player.name}, score=$score)"
-
     fun combine(other: TeamPlayer): TeamPlayer {
         if (other.team != team) throw IllegalStateException("Cannot combine players from different teams")
         if (other.player != player) throw IllegalStateException("Cannot combine different players")

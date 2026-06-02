@@ -3,6 +3,7 @@ package com.janoz.rl.statgatherer.repository
 import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.containsExactlyInAnyOrder
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -13,6 +14,7 @@ import com.janoz.rl.statgatherer.domain.Fixtures.Companion.createMatch
 import com.janoz.rl.statgatherer.domain.entities.Match
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -21,7 +23,15 @@ import kotlin.uuid.Uuid
 @QuarkusTest
 class MatchRepositoryTest {
     @Inject
+    private lateinit var testSupport: TestSupport
+
+    @Inject
     private lateinit var cut: MatchRepository
+
+    @BeforeEach
+    fun setup() {
+        testSupport.clear()
+    }
 
     @Test
     fun `find non existing match`() {
@@ -45,7 +55,7 @@ class MatchRepositoryTest {
     }
 
     @Test
-    fun `insert player with same id fails`() {
+    fun `insert match with same id fails`() {
         val match = createMatch(id(4))
         cut.insert(match)
 
@@ -53,6 +63,18 @@ class MatchRepositoryTest {
             it.contains("unique constraint")
             it.contains("_pkey\"")
         }
+    }
+
+    @Test
+    fun `find all matches`() {
+        val match1 = createMatch(id(1))
+        cut.insert(match1)
+        val match2 = createMatch(id(2))
+        cut.insert(match2)
+
+        val actual = cut.findAll()
+
+        assertThat(actual).containsExactlyInAnyOrder(match1, match2)
     }
 
     private fun id(Id: Long) =

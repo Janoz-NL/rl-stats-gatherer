@@ -15,20 +15,25 @@ import kotlin.uuid.toJavaUuid
 class TeamPlayerRepository(
     private val client: Pool,
 ) {
+    fun listByTeam(team: Team): List<TeamPlayer> =
+        client
+            .preparedQuery("SELECT ${COLUMNS_PLAYER} FROM ${TABLE_PLAYER} WHERE TEAM_ID = $1")
+            .execute(Tuple.of(team.uuid.toJavaUuid()))
+            .onItem()
+            .transform { rows ->
+                rows.map {
+                    rowMapper(it, team, PlayerRepository.rowMapper(it))
+                }
+            }.await()
+            .indefinitely()
+
     fun findByTeamAndPlayer(
         team: Team,
         player: Player,
     ): TeamPlayer? =
         client
             .preparedQuery(
-                "SELECT " +
-                    "SCORE," +
-                    "GOALS," +
-                    "SHOTS ," +
-                    "ASSISTS," +
-                    "SAVES," +
-                    "DEMOS   " +
-                    "FROM TEAM_PLAYERS WHERE TEAM_ID = $1 AND PLAYER_ID = $2",
+                "SELECT $COLUMNS FROM $TABLE WHERE TEAM_ID = $1 AND PLAYER_ID = $2",
             ).execute(Tuple.of(team.uuid.toJavaUuid(), player.uuid.toJavaUuid()))
             .onItem()
             .transform { row -> row.firstOrNull()?.let { rowMapper(it, team, player) } }
@@ -38,7 +43,9 @@ class TeamPlayerRepository(
     fun insert(teamPlayer: TeamPlayer): TeamPlayer {
         client
             .preparedQuery(
-                "INSERT INTO TEAM_PLAYERS (TEAM_ID, PLAYER_ID," +
+                "INSERT INTO TEAM_PLAYERS (" +
+                    "TEAM_ID, " +
+                    "PLAYER_ID," +
                     "SCORE," +
                     "GOALS," +
                     "SHOTS ," +
@@ -64,31 +71,27 @@ class TeamPlayerRepository(
         return teamPlayer
     }
 
-    private fun rowMapper(
-        row: Row,
-        team: Team,
-        player: Player,
-    ): TeamPlayer =
-        TeamPlayer(
-            team = team,
-            player = player,
-            score = row.getInteger("score"),
-            goals = row.getInteger("goals"),
-            shots = row.getInteger("shots"),
-            assists = row.getInteger("assists"),
-            saves = row.getInteger("saves"),
-            demos = row.getInteger("demos"),
-        ).also { team.playerMatches.add(it) }
-
     companion object {
-        const val TABLE_NAME = "TEAM_PLAYER"
-        const val TEAM_ID_COLUMN = "TEAM_ID"
-        const val PLAYER_ID_COLUMN = "PLAYER_ID"
-        const val SCORE_COLUMN = "SCORE"
-        const val GOALS_COLUMN = "GOALS"
-        const val SHOTS_COLUMN = "SHOTS"
-        const val ASSISTS_COLUMN = "ASSISTS"
-        const val SAVES_COLUMN = "SAVES"
-        const val DEMOS_COLUMN = "DEMOS"
+        val COLUMNS = "SCORE, GOALS, SHOTS, ASSISTS, SAVES, DEMOS"
+        val TABLE = "TEAM_PLAYERS"
+
+        val COLUMNS_PLAYER = "PLAYER_ID AS ID, NAME, ONLINE_ID, $COLUMNS"
+        val TABLE_PLAYER = "TEAM_PLAYERS JOIN PLAYERS ON PLAYER_ID = PLAYERS.ID "
+
+        fun rowMapper(
+            row: Row,
+            team: Team,
+            player: Player,
+        ): TeamPlayer =
+            TeamPlayer(
+                team = team,
+                player = player,
+                score = row.getInteger("score"),
+                goals = row.getInteger("goals"),
+                shots = row.getInteger("shots"),
+                assists = row.getInteger("assists"),
+                saves = row.getInteger("saves"),
+                demos = row.getInteger("demos"),
+            ).also { team.playerMatches.add(it) }
     }
 }

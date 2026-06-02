@@ -26,4 +26,8 @@ class TeamPlayerService(
                     player = player,
                 ),
             ).also { team.playerMatches.add(it) }
+
+    fun fillTeamWithPLayers(team: Team) {
+        repository.listByTeam(team)
+    }
 }

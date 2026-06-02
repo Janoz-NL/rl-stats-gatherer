@@ -1,0 +1,6 @@
+<tr>
+    <td>{match.homeTeam.name}</td>
+    <td>{match.awayTeam.name}</td>
+    <td>{match.homeTeam.score} - {match.awayTeam.score}</td>
+    <td><a href="#" hx-get="/matches/{match.uuid}" hx-target="#content">Info</a></td>
+</tr>
