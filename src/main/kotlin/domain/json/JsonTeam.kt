@@ -1,7 +1,9 @@
 package com.janoz.rl.statgatherer.domain.json
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.quarkus.runtime.annotations.RegisterForReflection
 
+@RegisterForReflection
 data class JsonTeam(
     @field:JsonProperty("Name") val name: String = "",
     @field:JsonProperty("TeamNum") val teamNum: Int = 0,
