@@ -1,0 +1,104 @@
+name: Build and Publish Multi-Arch Native Images
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers whenever you push a tag starting with 'v' (e.g., v1.2.3)
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-native:
+    name: Build Native Binary (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          cache: 'maven'
+
+      - name: Build Native Executable
+        run: ./mvnw package -Dnative -Dquarkus.native.container-build=false
+
+      - name: Upload Native Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-binary-${{ matrix.arch }}
+          path: target/*-runner
+          if-no-files-found: error
+
+  build-and-push:
+    name: Package and Push Multi-Arch Manifest
+    needs: build-native
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download AMD64 Native Binary
+        uses: actions/download-artifact@v4
+        with:
+          name: native-binary-amd64
+          path: target/amd64
+
+      - name: Download ARM64 Native Binary
+        uses: actions/download-artifact@v4
+        with:
+          name: native-binary-arm64
+          path: target/arm64
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Metadata (Tags/Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+
+      - name: Build and Push Multi-Arch Image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: src/main/docker/Dockerfile.native-distroless
+          platforms: linux/amd64, linux/arm64
+          push: true
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

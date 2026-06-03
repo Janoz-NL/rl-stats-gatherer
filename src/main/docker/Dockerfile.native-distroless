@@ -1,0 +1,16 @@
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
+# Docker Buildx automatically populates this variable based on the platform being built
+ARG TARGETARCH
+
+WORKDIR /work/
+
+RUN chown 1001 /work \
+    && chmod "g+rwX" /work \
+    && chown 1001:root /work 
+
+COPY --chown=1001:root --chmod=0755 target/${TARGETARCH}/*-runner /work/application
+
+EXPOSE 8080
+USER 1001
+
+ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0"]

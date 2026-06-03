@@ -8,6 +8,7 @@ import com.janoz.rl.statgatherer.domain.json.JsonUpdateStateData
 import io.vertx.core.json.Json
 import java.awt.Color
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -52,7 +53,7 @@ class Fixtures {
                 homeTeam = createTeam("Home"),
                 awayTeam = createTeam("Away"),
                 isFinished = true,
-                firstSeen = Clock.System.now(),
+                firstSeen = Instant.fromEpochSeconds(Clock.System.now().epochSeconds),
             )
 
         private fun <T> extractData(
