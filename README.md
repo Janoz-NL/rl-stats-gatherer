@@ -53,6 +53,18 @@ You can then execute your native executable with: `./target/rl-stats-gatherer-1.
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 
+## Trigger new releaase
+
+1. Create a tag locally adhering to SemVer
+```
+git tag -a "v0.0.0" -m "New Release"
+```
+2. Push the tag to github to launch the Action
+```
+git push origin v1.0.0
+```
+
+
 ## Related Guides
 
 - Kotlin ([guide](https://quarkus.io/guides/kotlin)): Write your services in Kotlin
