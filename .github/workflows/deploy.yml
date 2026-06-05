@@ -99,7 +99,7 @@ jobs:
       - name: List files
         run: ls -alR
       - name: Rename Amd64 Artifact
-        run: mv linux-amd64/*.runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-amd64
+        run: mv linux-amd64/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-amd64
 
       - name: Download ARM64 Native Binary
         uses: actions/download-artifact@v8
@@ -109,7 +109,7 @@ jobs:
       - name: List files
         run: ls -alR
       - name: Rename Arm64 Artifact
-        run: mv linux-arm64/*.runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-arm64
+        run: mv linux-arm64/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-arm64
 
       - name: Download Windows Native Binary
         uses: actions/download-artifact@v8
@@ -119,7 +119,7 @@ jobs:
       - name: List files
         run: ls -alR
       - name: Rename Windows Artifact
-        run: mv Windows/*.runner.exe dist/RL-Stats-Gatherer.${{ github.ref_name }}.Win.exe
+        run: mv Windows/*runner.exe dist/RL-Stats-Gatherer.${{ github.ref_name }}.Win.exe
 
       - name: Download MacOS Native Binary
         uses: actions/download-artifact@v8
@@ -127,7 +127,7 @@ jobs:
           name: native-binary-MacOS
           path: MacOS
       - name: Rename MacOS Artifact
-        run: mv MacOS/*.runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.MacOS
+        run: mv MacOS/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.MacOS
 
       - name: Download Quarkus Artifact
         uses: actions/download-artifact@v8
