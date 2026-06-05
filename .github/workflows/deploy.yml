@@ -10,22 +10,59 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  build-jar:
+    name: Build Jar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up GraalVM
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          cache: 'maven'
+
+      - name: Build Jar
+        run: ./mvnw install "-Dquarkus.native.container-build=false"
+
+      - name: Upload Quarkus Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: quarkus-binary
+          path: target/quarkus-app
+          if-no-files-found: error
+
   build-native:
     name: Build Native Binary (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         include:
-          - arch: amd64
+          - arch: linux-amd64
             runner: ubuntu-latest
-          - arch: arm64
+          - arch: linux-arm64
             runner: ubuntu-24.04-arm
+          - arch: Windows
+            runner: windows-2025
+          - arch: MacOS
+            runner: macos-15
     permissions:
       contents: read
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Set up GraalVM
         uses: actions/setup-java@v4
@@ -35,16 +72,78 @@ jobs:
           cache: 'maven'
 
       - name: Build Native Executable
-        run: ./mvnw package -Dnative -Dquarkus.native.container-build=false
+        run: ./mvnw package "-Dmaven.test.skip" -Dnative "-Dquarkus.native.container-build=false"
 
       - name: Upload Native Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: native-binary-${{ matrix.arch }}
-          path: target/*-runner
+          path: target/*-runner*
           if-no-files-found: error
 
-  build-and-push:
+  publish-artifacts:
+    name: Publish artifacts
+    needs: [build-jar,build-native]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create dist directory
+        run: mkdir dist
+
+      - name: Download AMD64 Native Binary
+        uses: actions/download-artifact@v8
+        with:
+          name: native-binary-linux-amd64
+          path: linux-amd64
+      - name: Rename Amd64 Artifact
+        run: mv linux-amd64/*.runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-amd64
+
+      - name: Download ARM64 Native Binary
+        uses: actions/download-artifact@v8
+        with:
+          name: native-binary-linux-arm64
+          path: linux-arm64
+      - name: Rename Arm64 Artifact
+        run: mv linux-arm64/*.runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-arm64
+
+      - name: Download Windows Native Binary
+        uses: actions/download-artifact@v8
+        with:
+          name: native-binary-Windows
+          path: Windows
+      - name: Rename Windows Artifact
+        run: mv Windows/*.runner.exe dist/RL-Stats-Gatherer.${{ github.ref_name }}.Win.exe
+
+      - name: Download MacOS Native Binary
+        uses: actions/download-artifact@v8
+        with:
+          name: native-binary-MacOS
+          path: MacOS
+      - name: Rename MacOS Artifact
+        run: mv MacOS/*.runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.MacOS
+
+      - name: Download Quarkus Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: quarkus-binary
+          path: Quarkus
+          skip-decompress: true
+      - name: Rename Quarkus Artifact
+        run: mv Quarkus/quarkus-binary.zip dist/RL-Stats-Gatherer.${{ github.ref_name }}.JVM.zip
+
+      - name: List files
+        run: ls -alR
+      - name: Upload Assets to GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            dist/*
+
+  build-and-push-docker-image:
     name: Package and Push Multi-Arch Manifest
     needs: build-native
     runs-on: ubuntu-latest
@@ -54,18 +153,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download AMD64 Native Binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: native-binary-amd64
+          name: native-binary-linux-amd64
           path: target/amd64
 
       - name: Download ARM64 Native Binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: native-binary-arm64
+          name: native-binary-linux-arm64
           path: target/arm64
 
       - name: Set up QEMU
