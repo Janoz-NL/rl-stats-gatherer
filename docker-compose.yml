@@ -6,6 +6,9 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       - MQTT_HOST=       # MQTT broker host
       - MQTT_SSL=        # Optional, default false
@@ -13,8 +16,33 @@ services:
       - MQTT_USERNAME=   # Optional
       - MQTT_PASSWORD=   # Optional
       - MQTT_CLIENT_ID=  # Optional, default rl_stats_gatherer
-      - DB_HOST=         # Database host
-      - DB_PORT=         # Optional, default 5432
-      - DB_USERNAME=     # Database username
-      - DB_PASSWORD=     # Database password
-      - DB_NAME=         # Optional, default rlstats
+      - DB_HOST=rl-stats-db
+      - DB_USERNAME=rlstats
+      - DB_PASSWORD=pa$$w0rd
+      - DB_NAME=rlstats
+    networks:
+      - rl-stats-network
+
+  db:
+    container_name: rl-stats-db
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=rlstats
+      - POSTGRES_PASSWORD=pa$$w0rd
+      - POSTGRES_DB=rlstats
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rlstats -d rlstats"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rl-stats-network
+
+volumes:
+  pgdata:
+
+networks:
+  rl-stats-network:
+    driver: bridge
