@@ -1,0 +1,51 @@
+@import "variables";
+@import "menu";
+@import "list";
+
+//
+//html, body {
+//  height: 100%;
+//  margin: 0;
+//  padding: 0;
+//}
+
+body {
+  font-family: $font;
+  font-size: 15px;
+  background: $backgroundColor;
+  color: $color;
+  min-height: 100vh;
+  margin: auto;
+  position: relative;
+  max-width: 800px;
+
+}
+
+header {
+}
+
+body::after {
+  content: '';
+  display: block;
+  height: $footerHeight;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: $footerHeight;
+  border-top: 2px solid $lessColor;
+}
+
+h1 {
+  font-size: 35px;
+  font-weight: bold;
+  padding-left: 40px;
+  background-image: url("assets/rl-logo-ds.png");
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: left 0 center;
+  filter: drop-shadow(0 0 10px black);
+  margin: auto;
+}

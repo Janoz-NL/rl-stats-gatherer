@@ -1,0 +1,52 @@
+@import "variables";
+
+nav {
+
+  ul {
+    list-style-type: none;
+    padding: 10px 0 0 0;
+    margin: 0 0 10px 0;
+    display: flex; /* Aligns items horizontally */
+    border-bottom: 2px solid $lessColor;
+    color: $color;
+
+    li {
+      margin-right: 5px; /* Tiny gap between tabs */
+      a{
+        display: block;
+        padding: 5px 20px;
+        text-decoration: none;
+        background: $gradientDefault;
+        color: $lessColor;
+
+        /* Create the top curved corners of a tab */
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+
+        /* Outline the tab on 3 sides */
+        border: 1px solid transparent;
+        border-bottom: none;
+
+        transition: all 0.3s ease;
+      }
+
+      a:hover {
+        background: $gradientActive;
+        color: $color;
+      }
+    }
+    .selected {
+      a {
+        background:$gradientSelected;
+        color: $color;
+        border-color: #ccc; /* Match the UL's bottom border color */
+        position: relative;
+        margin-bottom: -2px; /* Pulls it down to overlap the UL border */
+        padding-bottom: 7px; /* Compensates for the negative margin so text stays aligned */
+      }
+      a:hover {
+        background:$gradientSelected;
+      }
+    }
+  }
+}
