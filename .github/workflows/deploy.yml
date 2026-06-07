@@ -82,7 +82,7 @@ jobs:
           if-no-files-found: error
 
   publish-artifacts:
-    name: Publish artifacts
+    name: Publish artifacts to GitHub Release
     needs: [build-jar,build-native]
     runs-on: ubuntu-latest
     permissions:
@@ -96,8 +96,8 @@ jobs:
         with:
           name: native-binary-linux-amd64
           path: linux-amd64
-      - name: List files
-        run: ls -alR
+      - name: Make executable
+        run: chmod +x linux-amd64/*runner
       - name: Rename Amd64 Artifact
         run: mv linux-amd64/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-amd64
 
@@ -106,8 +106,8 @@ jobs:
         with:
           name: native-binary-linux-arm64
           path: linux-arm64
-      - name: List files
-        run: ls -alR
+      - name: Make executable
+        run: chmod +x linux-arm64/*runner
       - name: Rename Arm64 Artifact
         run: mv linux-arm64/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-arm64
 
@@ -116,8 +116,6 @@ jobs:
         with:
           name: native-binary-Windows
           path: Windows
-      - name: List files
-        run: ls -alR
       - name: Rename Windows Artifact
         run: mv Windows/*runner.exe dist/RL-Stats-Gatherer.${{ github.ref_name }}.Win.exe
 
@@ -126,6 +124,8 @@ jobs:
         with:
           name: native-binary-MacOS
           path: MacOS
+      - name: Make executable
+        run: chmod +x MacOS/*runner
       - name: Rename MacOS Artifact
         run: mv MacOS/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.MacOS
 
@@ -138,8 +138,6 @@ jobs:
       - name: Rename Quarkus Artifact
         run: mv Quarkus/quarkus-binary.zip dist/RL-Stats-Gatherer.${{ github.ref_name }}.JVM.zip
 
-      - name: List files
-        run: ls -alR
       - name: Upload Assets to GitHub Release
         uses: softprops/action-gh-release@v3
         with:
@@ -150,7 +148,7 @@ jobs:
             dist/*
 
   build-and-push-docker-image:
-    name: Package and Push Multi-Arch Manifest
+    name: Package and Push Multi-Arch Container Image
     needs: build-native
     runs-on: ubuntu-latest
     permissions:
