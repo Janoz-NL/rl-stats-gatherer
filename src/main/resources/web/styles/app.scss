@@ -2,6 +2,18 @@
 @import "menu";
 @import "list";
 
+a,
+a:visited,
+a:hover {
+  color: $color;
+  text-decoration: underline;
+}
+html {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
 body {
   font-family: $font;
   font-size: 15px;
@@ -11,34 +23,34 @@ body {
   margin: auto;
   position: relative;
   max-width: 800px;
+  padding: 0;
+  height: 100%;
 
+  display: flex;
+  flex-direction: column;
 }
 
 header {
 }
 
-body::after {
-  content: '';
-  display: block;
-  height: $footerHeight;
+#content {
+  background-color: $backgroundColorContent;
+  padding:20px 10px;
+  flex: 1 0 auto;
+  border-left: 2px solid $lessColor;
+  border-right: 2px solid $lessColor;
 }
 
 footer {
-  position: absolute;
-  bottom: 0;
+  flex-shrink: 0;
   width: 100%;
   font-size: 12px;
+  padding-top: 5px;
   height: $footerHeight;
   border-top: 2px solid $lessColor;
   text-align: right;
-
-  a,
-  a:visited,
-  a:hover {
-    color: $color;
-    text-decoration: underline;
-  }
 }
+
 
 h1 {
   font-size: 35px;

@@ -1,5 +1,7 @@
 $backgroundColor: #222f;
 $backgroundColorTransparent: #2220;
+//$backgroundColorContent: #00184DFF;
+$backgroundColorContent: #000C26FF;
 
 $color: white;
 $lessColor: lightgrey;
@@ -8,7 +10,7 @@ $font: "Oxanium", sans-serif;
 
 $gradientDefault: linear-gradient(0deg, #444 0%, #999 100%);
 $gradientDarker: linear-gradient(0deg, #333 0%, #666 100%);
-$gradientSelected: linear-gradient(0deg, #00184D 0%, #5298DD 100%);
+$gradientSelected: linear-gradient(0deg, $backgroundColorContent 0%, #5298DD 100%);
 $gradientActive: linear-gradient(0deg, #222 0%, #777 100%);
 $gradientScoreBoard: linear-gradient(0deg, #a0a0a0 0%, #ffffff 100%);
 $gradientScoreBoardDark: linear-gradient(0deg, #000 0%, #888 100%);

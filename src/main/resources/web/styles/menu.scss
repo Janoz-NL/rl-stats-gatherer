@@ -4,8 +4,8 @@ nav {
 
   ul {
     list-style-type: none;
-    padding: 10px 0 0 0;
-    margin: 0 0 10px 0;
+    padding: 10px 0 0 20px;
+    margin: 0;
     display: flex; /* Aligns items horizontally */
     border-bottom: 2px solid $lessColor;
     color: $color;
@@ -24,7 +24,7 @@ nav {
         border-top-right-radius: 8px;
 
         /* Outline the tab on 3 sides */
-        border: 1px solid transparent;
+        border: 2px solid transparent;
         border-bottom: none;
 
         transition: all 0.3s ease;
