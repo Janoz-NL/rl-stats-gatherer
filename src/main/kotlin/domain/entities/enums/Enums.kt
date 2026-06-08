@@ -1,5 +1,8 @@
 package com.janoz.rl.statgatherer.domain.entities.enums
 
+import io.quarkus.qute.TemplateData
+
+@TemplateData
 enum class Order {
     ASC,
     DESC,
@@ -12,6 +15,7 @@ enum class Order {
     }
 }
 
+@TemplateData
 enum class SortColumnPlayer {
     NAME,
     MATCHES,
@@ -27,6 +31,7 @@ enum class SortColumnPlayer {
     }
 }
 
+@TemplateData
 enum class SortColumnMatch {
     HOME_TEAM_NAME,
     AWAY_TEAM_NAME,
