@@ -1,15 +1,14 @@
     {#include player/base}
     <table id="playerlist">
         <tr>
-            <th>ProfPic</th>
-            <th>Name</th>
-            <th>Matches</th>
-            <th>Goals</th>
-            <th>Shots</th>
-            <th>Assists</th>
-            <th>Saves</th>
-            <th>Demos</th>
             <th></th>
+            {#include player/listColumn name="NAME"/}
+            {#include player/listColumn name="MATCHES"/}
+            {#include player/listColumn name="GOALS"/}
+            {#include player/listColumn name="SHOTS"/}
+            {#include player/listColumn name="ASSISTS"/}
+            {#include player/listColumn name="SAVES"/}
+            {#include player/listColumn name="DEMOS"/}
         </tr>
 
         {#for player in players}

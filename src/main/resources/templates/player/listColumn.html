@@ -1,0 +1,20 @@
+{#if sortBy.name == name }
+<th hx-trigger="click" hx-target="#content" hx-get="/players?orderBy={name}&order={order.reverse.name}">
+{#else}
+    {#if name == "NAME" }
+        <th hx-trigger="click" hx-target="#content" hx-get="/players?orderBy={name}&order=ASC">
+    {#else}
+        <th hx-trigger="click" hx-target="#content" hx-get="/players?orderBy={name}&order=DESC">
+    {/if}
+{/if}
+    {name}
+    {#if sortBy.name == name }
+    <span>
+    {#if order.name == "ASC"}
+        ▼
+    {#else}
+        ▲
+    {/if}
+    </span>
+{/if}
+</th>

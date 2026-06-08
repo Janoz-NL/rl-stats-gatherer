@@ -47,14 +47,16 @@ class Fixtures {
                 secondaryColor = Color.blue,
             )
 
-        fun createMatch(matchGuid: Uuid = Uuid.random()) =
-            Match(
-                uuid = matchGuid,
-                homeTeam = createTeam("Home"),
-                awayTeam = createTeam("Away"),
-                isFinished = true,
-                firstSeen = Instant.fromEpochSeconds(Clock.System.now().epochSeconds),
-            )
+        fun createMatch(
+            matchGuid: Uuid = Uuid.random(),
+            firstSeen: Instant = Instant.fromEpochSeconds(Clock.System.now().epochSeconds),
+        ) = Match(
+            uuid = matchGuid,
+            homeTeam = createTeam("Home"),
+            awayTeam = createTeam("Away"),
+            isFinished = true,
+            firstSeen = firstSeen,
+        )
 
         private fun <T> extractData(
             payload: String,

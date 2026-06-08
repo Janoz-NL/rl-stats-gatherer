@@ -1,6 +1,6 @@
-<tr>
+<tr hx-trigger="click" hx-get="/matches/{match.uuid}" hx-target="#content">
+    <td>{match.firstSeen.monthDay}</td>
     <td>{match.homeTeam.name}</td>
     <td>{match.homeTeam.score} - {match.awayTeam.score}</td>
     <td>{match.awayTeam.name}</td>
-    <td><a href="#" hx-get="/matches/{match.uuid}" hx-target="#content">Info</a></td>
 </tr>

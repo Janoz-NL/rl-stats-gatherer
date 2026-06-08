@@ -1,6 +1,8 @@
 package com.janoz.rl.statgatherer.repository
 
 import com.janoz.rl.statgatherer.domain.entities.Player
+import com.janoz.rl.statgatherer.domain.entities.enums.Order
+import com.janoz.rl.statgatherer.domain.entities.enums.SortColumnPlayer
 import com.janoz.rl.statgatherer.domain.entities.views.PlayerDetail
 import io.vertx.mutiny.sqlclient.Pool
 import io.vertx.mutiny.sqlclient.Row
@@ -26,9 +28,18 @@ class PlayerRepository(
             .await()
             .indefinitely()
 
-    fun findAll(): List<PlayerDetail> =
+    fun findAll(): List<PlayerDetail> = findAll("")
+
+    fun findAll(
+        sortBy: SortColumnPlayer,
+        order: Order,
+    ) = findAll(
+        " ORDER BY ${sortBy.name} $order",
+    )
+
+    private fun findAll(order: String): List<PlayerDetail> =
         client
-            .query("SELECT ${COLUMNS_DETAIL} FROM ${TABLE_DETAIL} GROUP BY P.ID")
+            .query("SELECT ${COLUMNS_DETAIL} FROM ${TABLE_DETAIL} GROUP BY P.ID $order")
             .execute()
             .onItem()
             .transform { rows -> rows.map { rowDetailMapper(it) } }

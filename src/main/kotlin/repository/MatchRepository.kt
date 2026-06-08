@@ -2,6 +2,8 @@ package com.janoz.rl.statgatherer.repository
 
 import com.janoz.rl.statgatherer.domain.entities.Match
 import com.janoz.rl.statgatherer.domain.entities.Team
+import com.janoz.rl.statgatherer.domain.entities.enums.Order
+import com.janoz.rl.statgatherer.domain.entities.enums.SortColumnMatch
 import com.janoz.rl.statgatherer.util.ColorUtils.Companion.toColor
 import com.janoz.rl.statgatherer.util.ColorUtils.Companion.toHex
 import io.vertx.mutiny.sqlclient.Pool
@@ -23,9 +25,18 @@ import kotlin.uuid.toKotlinUuid
 class MatchRepository(
     private val client: Pool,
 ) {
-    fun findAll(): List<Match> =
+    fun findAll(): List<Match> = findAll(SortColumnMatch.FIRST_SEEN, Order.DESC)
+
+    fun findAll(
+        sortBy: SortColumnMatch,
+        order: Order,
+    ) = findAll(
+        " ORDER BY ${sortBy.name} $order",
+    )
+
+    private fun findAll(order: String): List<Match> =
         client
-            .query("SELECT $COLUMNS FROM $TABLE")
+            .query("SELECT $COLUMNS FROM $TABLE $order")
             .execute()
             .onItem()
             .transform { rows -> rows.map { rowMapper(it) } }

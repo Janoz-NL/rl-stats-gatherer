@@ -1,6 +1,8 @@
 package com.janoz.rl.statgatherer.service
 
 import com.janoz.rl.statgatherer.domain.entities.Player
+import com.janoz.rl.statgatherer.domain.entities.enums.Order
+import com.janoz.rl.statgatherer.domain.entities.enums.SortColumnPlayer
 import com.janoz.rl.statgatherer.domain.json.JsonPlayer
 import com.janoz.rl.statgatherer.repository.PlayerRepository
 import jakarta.enterprise.context.ApplicationScoped
@@ -28,5 +30,11 @@ class PlayerService(
 
     fun find(uuid: Uuid) = repository.findDetails(uuid)
 
-    fun findAll() = repository.findAll()
+    fun findAll(
+        sortBy: SortColumnPlayer,
+        order: Order,
+    ) = repository.findAll(
+        sortBy,
+        order,
+    )
 }

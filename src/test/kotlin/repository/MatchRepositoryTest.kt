@@ -3,7 +3,7 @@ package com.janoz.rl.statgatherer.repository
 import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.containsExactlyInAnyOrder
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -16,6 +16,7 @@ import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -67,14 +68,14 @@ class MatchRepositoryTest {
 
     @Test
     fun `find all matches`() {
-        val match1 = createMatch(id(1))
+        val match1 = createMatch(id(1), Instant.parse("2016-02-15T12:00:00Z"))
         cut.insert(match1)
-        val match2 = createMatch(id(2))
+        val match2 = createMatch(id(2), Instant.parse("2016-02-15T13:00:00Z"))
         cut.insert(match2)
 
         val actual = cut.findAll()
 
-        assertThat(actual).containsExactlyInAnyOrder(match1, match2)
+        assertThat(actual).containsExactly(match2, match1)
     }
 
     private fun id(Id: Long) =

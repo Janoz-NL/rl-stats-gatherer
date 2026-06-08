@@ -3,6 +3,8 @@ package com.janoz.rl.statgatherer.repository
 import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.containsExactly
+import assertk.assertions.extracting
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -12,6 +14,8 @@ import assertk.assertions.message
 import assertk.assertions.prop
 import com.janoz.rl.statgatherer.domain.Fixtures
 import com.janoz.rl.statgatherer.domain.entities.Player
+import com.janoz.rl.statgatherer.domain.entities.enums.Order
+import com.janoz.rl.statgatherer.domain.entities.enums.SortColumnPlayer
 import com.janoz.rl.statgatherer.domain.entities.views.PlayerDetail
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
@@ -110,5 +114,30 @@ class PlayerRepositoryTest {
         val actual = cut.findAll()
 
         assertThat(actual).hasSize(6)
+    }
+
+    @Test
+    fun `find all player details, ordered by name`() {
+        testSupport.insertMatch()
+
+        val actualAsc = cut.findAll(SortColumnPlayer.NAME, Order.ASC)
+        val actualDesc = cut.findAll(SortColumnPlayer.NAME, Order.DESC)
+
+        assertThat(actualAsc).extracting(PlayerDetail::player).extracting(Player::name).containsExactly(
+            "Isa",
+            "Jasper",
+            "Stijn",
+            "Twan",
+            "Xavier",
+            "Yasmine",
+        )
+        assertThat(actualDesc).extracting(PlayerDetail::player).extracting(Player::name).containsExactly(
+            "Yasmine",
+            "Xavier",
+            "Twan",
+            "Stijn",
+            "Jasper",
+            "Isa",
+        )
     }
 }

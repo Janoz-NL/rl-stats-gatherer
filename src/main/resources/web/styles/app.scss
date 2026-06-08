@@ -2,13 +2,6 @@
 @import "menu";
 @import "list";
 
-//
-//html, body {
-//  height: 100%;
-//  margin: 0;
-//  padding: 0;
-//}
-
 body {
   font-family: $font;
   font-size: 15px;
@@ -34,15 +27,24 @@ footer {
   position: absolute;
   bottom: 0;
   width: 100%;
+  font-size: 12px;
   height: $footerHeight;
   border-top: 2px solid $lessColor;
+  text-align: right;
+
+  a,
+  a:visited,
+  a:hover {
+    color: $color;
+    text-decoration: underline;
+  }
 }
 
 h1 {
   font-size: 35px;
   font-weight: bold;
   padding-left: 40px;
-  background-image: url("assets/rl-logo-ds.png");
+  background-image: url("../assets/rl-logo-ds.png");
   background-size: 40px;
   background-repeat: no-repeat;
   background-position: left 0 center;

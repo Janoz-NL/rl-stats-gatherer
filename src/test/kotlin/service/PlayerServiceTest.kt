@@ -8,6 +8,8 @@ import assertk.assertions.isNull
 import assertk.assertions.isSameInstanceAs
 import assertk.assertions.prop
 import com.janoz.rl.statgatherer.domain.entities.Player
+import com.janoz.rl.statgatherer.domain.entities.enums.Order
+import com.janoz.rl.statgatherer.domain.entities.enums.SortColumnPlayer
 import com.janoz.rl.statgatherer.domain.entities.views.PlayerDetail
 import com.janoz.rl.statgatherer.domain.json.JsonPlayer
 import com.janoz.rl.statgatherer.repository.PlayerRepository
@@ -109,9 +111,9 @@ class PlayerServiceTest {
     @Test
     fun `find all players`() {
         val expected = listOf(PlayerDetail(player = Player(name = "Existing", onlineId = "steam|1|2")))
-        whenever(playerRepository.findAll()).thenReturn(expected)
+        whenever(playerRepository.findAll(SortColumnPlayer.NAME, Order.ASC)).thenReturn(expected)
 
-        val actual = cut.findAll()
+        val actual = cut.findAll(SortColumnPlayer.NAME, Order.ASC)
 
         assertThat(actual).isSameInstanceAs(expected)
         verify(playerRepository).findAll()
