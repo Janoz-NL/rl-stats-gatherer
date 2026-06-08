@@ -116,7 +116,7 @@ class PlayerServiceTest {
         val actual = cut.findAll(SortColumnPlayer.NAME, Order.ASC)
 
         assertThat(actual).isSameInstanceAs(expected)
-        verify(playerRepository).findAll()
+        verify(playerRepository).findAll(SortColumnPlayer.NAME, Order.ASC)
         verifyNoMoreInteractions(playerRepository)
     }
 }
