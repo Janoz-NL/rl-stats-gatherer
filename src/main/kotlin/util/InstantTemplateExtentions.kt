@@ -2,7 +2,6 @@ package com.janoz.rl.statgatherer.util
 
 import io.quarkus.qute.TemplateExtension
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
