@@ -5,7 +5,6 @@ import com.janoz.rl.statgatherer.domain.json.JsonUpdateStateData
 import com.janoz.rl.statgatherer.service.MatchService
 import com.janoz.rl.statgatherer.service.TimeService
 import io.vertx.core.impl.logging.LoggerFactory
-import io.vertx.core.json.Json
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import kotlin.time.Instant
@@ -24,25 +23,33 @@ class MessageReceiver(
 
     @Incoming("rlapi")
     fun receiveUpdateState(payload: String) {
+        receiveUpdateState(payload, timeService.now())
+    }
+
+    fun receiveUpdateState(
+        payload: String,
+        timestamp: Instant,
+    ) {
         val stateData = extractData(payload)
         log.info("Received matchdata whith GUID: ${stateData.matchGuid}")
         if (stateData.game.isValid()) {
             val matchGuid = Uuid.parse(stateData.matchGuid)
             if (stateData.game.isDone) {
-                val firstSeen = matchesFirstSeen[matchGuid] ?: timeService.now()
-                matchService.create(stateData, firstSeen)
-                matchesFirstSeen.remove(matchGuid)
+                val firstSeen = matchesFirstSeen[matchGuid]
+                if (firstSeen != null) {
+                    // Only store finished matched states and only store when we have seen unfinished
+                    // states before. Workaround for a bug in Rocket League stats API where the last
+                    // messages are sent with the UUID of the next message
+                    matchService.create(stateData, firstSeen)
+                    matchesFirstSeen.remove(matchGuid)
+                }
             } else {
-                matchesFirstSeen.computeIfAbsent(matchGuid) { timeService.now() }
+                matchesFirstSeen.computeIfAbsent(matchGuid) { timestamp }
             }
         }
     }
 
-    private fun extractData(payload: String): JsonUpdateStateData =
-        Json.decodeValue(
-            Json.decodeValue(payload, JsonRocketLeagueMessage::class.java).data,
-            JsonUpdateStateData::class.java,
-        )
+    private fun extractData(payload: String): JsonUpdateStateData = JsonUpdateStateData.parse(JsonRocketLeagueMessage.parse(payload).data)
 
     fun reset() {
         matchesFirstSeen.clear()
