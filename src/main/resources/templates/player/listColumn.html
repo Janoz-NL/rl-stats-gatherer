@@ -1,5 +1,7 @@
-{#if sortBy.name == name }
-<th hx-trigger="click" hx-target="#content" hx-get="/players?orderBy={name}&order={order.reverse.name}">
+{@com.janoz.rl.statgatherer.domain.entities.enums.Order order}
+{@com.janoz.rl.statgatherer.domain.entities.enums.SortColumnPlayer sortBy}
+{#if sortBy.label == name }
+    <th hx-trigger="click" hx-target="#content" hx-get="/players?orderBy={name}&order={order.reverse.label}">
 {#else}
     {#if name == "NAME" }
         <th hx-trigger="click" hx-target="#content" hx-get="/players?orderBy={name}&order=ASC">
@@ -8,9 +10,9 @@
     {/if}
 {/if}
     {name}
-    {#if sortBy.name == name }
+    {#if sortBy.label == name }
     <span>
-    {#if order.name == "ASC"}
+    {#if order.label == "ASC"}
         ▼
     {#else}
         ▲
