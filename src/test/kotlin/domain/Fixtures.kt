@@ -49,13 +49,15 @@ class Fixtures {
 
         fun createMatch(
             matchGuid: Uuid = Uuid.random(),
-            firstSeen: Instant = Instant.fromEpochSeconds(Clock.System.now().epochSeconds),
+            firstSeen: Instant = Instant.fromEpochSeconds(Clock.System.now().epochSeconds - 600),
+            lastSeen: Instant = Instant.fromEpochSeconds(Clock.System.now().epochSeconds),
         ) = Match(
             uuid = matchGuid,
             homeTeam = createTeam("Home"),
             awayTeam = createTeam("Away"),
             isFinished = true,
             firstSeen = firstSeen,
+            lastSeen = lastSeen,
         )
 
         private fun <T> extractData(

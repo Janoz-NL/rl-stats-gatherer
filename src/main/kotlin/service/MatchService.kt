@@ -18,12 +18,13 @@ class MatchService(
     fun create(
         jsonUpdateStateData: JsonUpdateStateData,
         firstSeen: Instant,
+        lastSeen: Instant,
     ) {
         if (!jsonUpdateStateData.game.isValid()) throw IllegalArgumentException("Invalid game state")
         val uuid: Uuid = Uuid.parse(jsonUpdateStateData.matchGuid)
 
         if (repository.findById(uuid) != null) return // already stored
-        val match: Match = Match.fromJson(jsonUpdateStateData.game, uuid, firstSeen)
+        val match: Match = Match.fromJson(jsonUpdateStateData.game, uuid, firstSeen, lastSeen)
         repository.insert(match) // TODO: make this more atomic
 
         val teams = mapOf(0 to match.homeTeam, 1 to match.awayTeam)

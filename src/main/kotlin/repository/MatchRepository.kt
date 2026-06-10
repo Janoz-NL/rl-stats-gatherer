@@ -78,13 +78,18 @@ class MatchRepository(
                     )
             }.flatMap {
                 client
-                    .preparedQuery("INSERT INTO MATCHES (ID, HOME_TEAM_ID, AWAY_TEAM_ID, FIRST_SEEN) VALUES ($1, $2, $3, $4)")
-                    .execute(
+                    .preparedQuery(
+                        "INSERT INTO MATCHES (ID, HOME_TEAM_ID, AWAY_TEAM_ID, FIRST_SEEN, LAST_SEEN) VALUES ($1, $2, $3, $4, $5)",
+                    ).execute(
                         Tuple.of(
                             match.uuid.toJavaUuid(),
                             match.homeTeam.uuid.toJavaUuid(),
                             match.awayTeam.uuid.toJavaUuid(),
                             match.firstSeen
+                                .toJavaInstant()
+                                .atOffset(ZoneOffset.ofHours(0))
+                                .toLocalDateTime(),
+                            match.lastSeen
                                 .toJavaInstant()
                                 .atOffset(ZoneOffset.ofHours(0))
                                 .toLocalDateTime(),
@@ -99,6 +104,7 @@ class MatchRepository(
         val COLUMNS =
             "M.ID AS ID, " +
                 "M.FIRST_SEEN AS FIRST_SEEN, " +
+                "M.LAST_SEEN AS LAST_SEEN, " +
                 "HT.ID AS HOME_TEAM_ID, " +
                 "HT.NAME AS HOME_TEAM_NAME, " +
                 "HT.PRIMARY_COLOR AS HOME_TEAM_PRIMARY_COLOR, " +
@@ -118,6 +124,7 @@ class MatchRepository(
             Match(
                 uuid = row.get(UUID::class.java, "id").toKotlinUuid(),
                 firstSeen = row.get(LocalDateTime::class.java, "first_seen").toInstant(ZoneOffset.ofHours(0)).toKotlinInstant(),
+                lastSeen = row.get(LocalDateTime::class.java, "last_seen").toInstant(ZoneOffset.ofHours(0)).toKotlinInstant(),
                 isFinished = true,
                 homeTeam =
                     Team(

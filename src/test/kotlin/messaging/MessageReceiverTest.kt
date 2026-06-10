@@ -62,7 +62,7 @@ class MessageReceiverTest {
         cut.receiveUpdateState(finishedMatch)
 
         verify(timeService, times(3)).now()
-        verify(matchService).create(any(), eq(earlier))
+        verify(matchService).create(any(), eq(earlier), eq(later))
         verifyNoMoreInteractions(matchService)
         verifyNoMoreInteractions(timeService)
     }

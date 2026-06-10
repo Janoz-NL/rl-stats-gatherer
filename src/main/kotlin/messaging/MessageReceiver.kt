@@ -40,7 +40,7 @@ class MessageReceiver(
                     // Only store finished matched states and only store when we have seen unfinished
                     // states before. Workaround for a bug in Rocket League stats API where the last
                     // messages are sent with the UUID of the next message
-                    matchService.create(stateData, firstSeen)
+                    matchService.create(stateData, firstSeen, timestamp)
                     matchesFirstSeen.remove(matchGuid)
                 }
             } else {

@@ -46,6 +46,7 @@ class MatchServiceTest {
 
     @Test
     fun `store valid match`() {
+        val earlier = Instant.parse("2016-02-15T12:29:56Z")
         val now = Instant.parse("2016-02-15T12:34:56Z")
         val updateStateData = Fixtures.updateStateData
         val uuid = Uuid.parse(updateStateData.matchGuid)
@@ -68,7 +69,7 @@ class MatchServiceTest {
             TeamPlayer(team = team, player = player).also { tp -> teamPlayers.add(tp) }
         }
 
-        cut.create(updateStateData, now)
+        cut.create(updateStateData, earlier, now)
 
         verify(matchRepository).findById(eq(uuid))
         verify(matchRepository).insert(any())
@@ -79,13 +80,14 @@ class MatchServiceTest {
 
     @Test
     fun `dont store valid match already stored`() {
+        val earlier = Instant.parse("2016-02-15T12:29:56Z")
         val now = Instant.parse("2016-02-15T12:34:56Z")
         val updateStateData = Fixtures.updateStateData
         val uuid = Uuid.parse(updateStateData.matchGuid)
 
         whenever(matchRepository.findById(eq(uuid))).thenReturn(createMatch(uuid))
 
-        cut.create(updateStateData, now)
+        cut.create(updateStateData, earlier, now)
 
         verify(matchRepository).findById(eq(uuid))
         verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
