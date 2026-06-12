@@ -44,8 +44,14 @@ class MatchService(
             if (it != null) {
                 teamPlayerService.fillTeamWithPLayers(it.homeTeam)
                 teamPlayerService.fillTeamWithPLayers(it.awayTeam)
+                repository.addLinks(it)
             }
         }
 
-    fun findAll() = repository.findAll()
+    fun findAll() =
+        repository.findAll().also { matches ->
+            matches.forEach {
+                repository.addLinks(it)
+            }
+        }
 }

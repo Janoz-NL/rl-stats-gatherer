@@ -1,5 +1,7 @@
 package com.janoz.rl.statgatherer.domain.entities.enums
 
+import io.quarkus.qute.TemplateData
+
 enum class Order {
     ASC,
     DESC,
@@ -41,5 +43,21 @@ enum class SortColumnMatch {
 
     companion object {
         fun of(event: String?): SortColumnMatch? = entries.find { it.name == event }
+    }
+}
+
+@TemplateData
+enum class UrlType {
+    YOUTUBE,
+    REPLAY,
+    OTHER,
+    ;
+
+    fun label(): String = name
+
+    fun icon(): String = name.lowercase() + ".svg"
+
+    companion object {
+        fun of(type: String?): UrlType = UrlType.entries.find { it.name == type } ?: OTHER
     }
 }

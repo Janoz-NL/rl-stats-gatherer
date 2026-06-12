@@ -1,9 +1,11 @@
 package com.janoz.rl.statgatherer.repository
 
+import com.janoz.rl.statgatherer.domain.entities.Link
 import com.janoz.rl.statgatherer.domain.entities.Match
 import com.janoz.rl.statgatherer.domain.entities.Team
 import com.janoz.rl.statgatherer.domain.entities.enums.Order
 import com.janoz.rl.statgatherer.domain.entities.enums.SortColumnMatch
+import com.janoz.rl.statgatherer.domain.entities.enums.UrlType
 import com.janoz.rl.statgatherer.util.ColorUtils.Companion.toColor
 import com.janoz.rl.statgatherer.util.ColorUtils.Companion.toHex
 import io.vertx.mutiny.sqlclient.Pool
@@ -100,6 +102,28 @@ class MatchRepository(
         return match
     }
 
+    /**
+     * Adds the links to the match. TODO: This should be a join in find and findAll.
+     */
+    fun addLinks(match: Match) {
+        client
+            .preparedQuery(
+                "SELECT TYPE, URL FROM MATCH_URLS WHERE MATCH_ID = $1 ORDER BY TYPE",
+            ).execute(Tuple.of(match.uuid.toJavaUuid()))
+            .onItem()
+            .invoke { row ->
+                row.forEach {
+                    match.links.add(
+                        Link(
+                            UrlType.of(it.getString("type")),
+                            it.getString("url"),
+                        ),
+                    )
+                }
+            }.await()
+            .indefinitely()
+    }
+
     companion object {
         val COLUMNS =
             "M.ID AS ID, " +
@@ -123,8 +147,8 @@ class MatchRepository(
         fun rowMapper(row: Row): Match =
             Match(
                 uuid = row.get(UUID::class.java, "id").toKotlinUuid(),
-                firstSeen = row.get(LocalDateTime::class.java, "first_seen").toInstant(ZoneOffset.ofHours(0)).toKotlinInstant(),
-                lastSeen = row.get(LocalDateTime::class.java, "last_seen").toInstant(ZoneOffset.ofHours(0)).toKotlinInstant(),
+                firstSeen = row.get(LocalDateTime::class.java, "first_seen").toInstant(ZoneOffset.UTC).toKotlinInstant(),
+                lastSeen = row.get(LocalDateTime::class.java, "last_seen").toInstant(ZoneOffset.UTC).toKotlinInstant(),
                 isFinished = true,
                 homeTeam =
                     Team(

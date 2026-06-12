@@ -119,6 +119,7 @@ class MatchServiceTest {
         verify(matchRepository).findById(eq(uuid))
         verify(teamPlayerService).fillTeamWithPLayers(homeTeam)
         verify(teamPlayerService).fillTeamWithPLayers(awayTeam)
+        verify(matchRepository).addLinks(match)
         verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
     }
 
@@ -131,6 +132,8 @@ class MatchServiceTest {
 
         assertThat(actual).isSameInstanceAs(expected)
         verify(matchRepository).findAll()
+        verify(matchRepository).addLinks(actual[0])
+        verify(matchRepository).addLinks(actual[1])
         verifyNoMoreInteractions(matchRepository, playerService, teamPlayerService)
     }
 }

@@ -1,7 +1,15 @@
+
 <tr hx-trigger="click" hx-get="/matches/{match.uuid}" hx-target="#content">
     <td>{match.firstSeen.monthDay}</td>
     <td>{match.firstSeen.hourMinute} - {match.lastSeen.hourMinute}</td>
     <td>{match.homeTeam.name}</td>
     <td>{match.homeTeam.score} - {match.awayTeam.score}</td>
     <td>{match.awayTeam.name}</td>
+    <td>
+        {#for link in match.links}
+            <a href="{link.url}" onclick="event.stopPropagation();" target="_blank">
+                <img src="/icons/{link.type.icon}" height="16"/>
+            </a>
+        {/for}
+    </td>
 </tr>

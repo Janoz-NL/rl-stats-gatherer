@@ -13,6 +13,7 @@ data class Match(
     val isFinished: Boolean,
     val firstSeen: Instant,
     val lastSeen: Instant,
+    val links: MutableList<Link> = ArrayList(),
 ) {
     companion object {
         fun fromJson(
