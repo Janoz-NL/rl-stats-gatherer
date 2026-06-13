@@ -52,8 +52,8 @@ jobs:
             runner: ubuntu-latest
           - arch: linux-arm64
             runner: ubuntu-24.04-arm
-          - arch: Windows
-            runner: windows-2025
+#          - arch: Windows
+#            runner: windows-2025
           - arch: MacOS
             runner: macos-15
     permissions:
@@ -113,13 +113,13 @@ jobs:
       - name: Rename Arm64 Artifact
         run: mv linux-arm64/*runner dist/RL-Stats-Gatherer.${{ github.ref_name }}.linux-arm64
 
-      - name: Download Windows Native Binary
-        uses: actions/download-artifact@v8
-        with:
-          name: native-binary-Windows
-          path: Windows
-      - name: Rename Windows Artifact
-        run: mv Windows/*runner.exe dist/RL-Stats-Gatherer.${{ github.ref_name }}.Win.exe
+#      - name: Download Windows Native Binary
+#        uses: actions/download-artifact@v8
+#        with:
+#          name: native-binary-Windows
+#          path: Windows
+#      - name: Rename Windows Artifact
+#        run: mv Windows/*runner.exe dist/RL-Stats-Gatherer.${{ github.ref_name }}.Win.exe
 
       - name: Download MacOS Native Binary
         uses: actions/download-artifact@v8
