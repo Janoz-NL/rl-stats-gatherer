@@ -25,6 +25,8 @@ class TestSupport(
             .query("DELETE FROM TEAM_PLAYERS")
             .execute()
             .flatMap {
+                client.query("DELETE FROM MATCH_URLS").execute()
+            }.flatMap {
                 client.query("DELETE FROM MATCHES").execute()
             }.flatMap {
                 client.query("DELETE FROM PLAYERS").execute()

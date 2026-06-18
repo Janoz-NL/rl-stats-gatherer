@@ -4,6 +4,8 @@ import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.containsExactly
+import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -11,7 +13,9 @@ import assertk.assertions.matchesPredicate
 import assertk.assertions.message
 import assertk.assertions.prop
 import com.janoz.rl.statgatherer.domain.Fixtures.Companion.createMatch
+import com.janoz.rl.statgatherer.domain.entities.Link
 import com.janoz.rl.statgatherer.domain.entities.Match
+import com.janoz.rl.statgatherer.domain.entities.enums.UrlType
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.BeforeEach
@@ -76,6 +80,25 @@ class MatchRepositoryTest {
         val actual = cut.findAll()
 
         assertThat(actual).containsExactly(match2, match1)
+    }
+
+    @Test
+    fun `find match with all links`() {
+        val match1 = createMatch(id(1), Instant.parse("2016-02-15T12:00:00Z"))
+        cut.insert(match1)
+        val match2 = createMatch(id(2), Instant.parse("2016-02-15T13:00:00Z"))
+        cut.insert(match2)
+
+        cut.insertLink(match2.uuid, Link(UrlType.YOUTUBE, "http://youtube.com/"))
+        cut.insertLink(match2.uuid, Link(UrlType.REPLAY, "blaat.replay"))
+        cut.insertLink(match2.uuid, Link(UrlType.OTHER, "something"))
+
+        val actual = cut.findAll()
+
+        assertThat(actual.map { it.uuid }).containsExactly(id(2), id(1))
+        assertThat(actual[1]).isEqualTo(match1)
+        assertThat(actual[1].links).isNotNull().isEmpty()
+        assertThat(actual[0].links).isNotNull().hasSize(3)
     }
 
     private fun id(Id: Long) =

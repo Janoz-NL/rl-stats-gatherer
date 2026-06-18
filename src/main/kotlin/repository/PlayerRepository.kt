@@ -83,8 +83,8 @@ class PlayerRepository(
     }
 
     companion object {
-        val COLUMNS = " P.ID AS ID, P.NAME AS NAME, P.ONLINE_ID AS ONLINE_ID"
-        val COLUMNS_DETAIL =
+        private val COLUMNS = " P.ID AS ID, P.NAME AS NAME, P.ONLINE_ID AS ONLINE_ID"
+        private val COLUMNS_DETAIL =
             "P.ID AS ID, " +
                 "P.NAME AS NAME, " +
                 "P.ONLINE_ID AS ONLINE_ID, " +
@@ -95,8 +95,8 @@ class PlayerRepository(
                 "SUM(TP.SAVES) AS SAVES, " +
                 "SUM(TP.DEMOS) AS DEMOS"
 
-        val TABLE = "PLAYERS P"
-        val TABLE_DETAIL = "PLAYERS P LEFT JOIN TEAM_PLAYERS TP ON TP.PLAYER_ID = P.ID"
+        private val TABLE = "PLAYERS P"
+        private val TABLE_DETAIL = "PLAYERS P LEFT JOIN TEAM_PLAYERS TP ON TP.PLAYER_ID = P.ID"
 
         fun rowMapper(row: Row): Player =
             Player(
@@ -105,7 +105,7 @@ class PlayerRepository(
                 row.get(String::class.java, "name"),
             )
 
-        fun rowDetailMapper(row: Row): PlayerDetail =
+        private fun rowDetailMapper(row: Row): PlayerDetail =
             PlayerDetail(
                 player = rowMapper(row),
                 matches = row.getInteger("matches"),

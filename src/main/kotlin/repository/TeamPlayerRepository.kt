@@ -72,13 +72,13 @@ class TeamPlayerRepository(
     }
 
     companion object {
-        val COLUMNS = "SCORE, GOALS, SHOTS, ASSISTS, SAVES, DEMOS"
-        val TABLE = "TEAM_PLAYERS"
+        private val COLUMNS = "SCORE, GOALS, SHOTS, ASSISTS, SAVES, DEMOS"
+        private val TABLE = "TEAM_PLAYERS"
 
-        val COLUMNS_PLAYER = "PLAYER_ID AS ID, NAME, ONLINE_ID, $COLUMNS"
-        val TABLE_PLAYER = "TEAM_PLAYERS JOIN PLAYERS ON PLAYER_ID = PLAYERS.ID "
+        private val COLUMNS_PLAYER = "PLAYER_ID AS ID, NAME, ONLINE_ID, $COLUMNS"
+        private val TABLE_PLAYER = "TEAM_PLAYERS JOIN PLAYERS ON PLAYER_ID = PLAYERS.ID "
 
-        fun rowMapper(
+        private fun rowMapper(
             row: Row,
             team: Team,
             player: Player,
