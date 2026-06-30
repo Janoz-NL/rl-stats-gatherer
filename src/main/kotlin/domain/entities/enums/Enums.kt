@@ -50,6 +50,7 @@ enum class SortColumnMatch {
 enum class UrlType {
     YOUTUBE,
     REPLAY,
+    BALLCHASING,
     OTHER,
     ;
 
